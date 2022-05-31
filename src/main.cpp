@@ -1,19 +1,18 @@
 #include "network.hpp"
 #include "request.hpp"
+#include "response.hpp"
 #include <iostream>
 #include <stdio.h>
 #include <map>
 using namespace std;
 
 int main(int argc, char** argv) {
-	string buffer;
+	std::map<string, string> response_headers;
 	string response_buffer;
+	Request request;
+	string html;
 
 	int port = 8080;
-	std::map<string, string> response_headers;
-
-	response_headers["Server"] = "ifsfs";
-	response_headers["Content-type"] = get_mime_header(HTML_MIMETYPE, CHARSET_UTF8);
 
 	network_init(port);
 
@@ -24,8 +23,20 @@ int main(int argc, char** argv) {
 	for (;;) {
 		accept_connection();
 
-		buffer = read_data();
-		response_buffer = handle_input(buffer, response_headers);
+		request = parse_request(read_data());
+		
+		html = "<head><title>ifdws!</title></head><body>";
+		html += "<h1>ifdws is online!</h1>";
+		html += "<p>Route: ";
+		html += request.route;
+		html += "</p>";
+		html += "</body>";
+
+		response_headers = create_headers();
+
+		response_headers["Content-type"] = get_mime_header(HTML_MIMETYPE, CHARSET_UTF8);
+
+		response_buffer = respond(create_response(RESPONSE_200, html, response_headers));
 
 		if (response_buffer == CLOSE_CONNECTION) {
 			close_socket();
@@ -39,12 +50,6 @@ int main(int argc, char** argv) {
 	// Stop server
 
 	close_server();
-
-	// Clean up memory
-
-	free(&buffer);
-	free(&response_buffer);
-	free(&response_headers);
 
 	return 0;
 }
