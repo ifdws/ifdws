@@ -24,6 +24,11 @@ int main(int argc, char** argv) {
 		accept_connection();
 
 		request = parse_request(read_data());
+
+		if (!request.valid) {
+			close_socket();
+			continue;
+		}
 		
 		html = "<head><title>ifdws!</title></head><body>";
 		html += "<h1>ifdws is online!</h1>";
@@ -38,7 +43,7 @@ int main(int argc, char** argv) {
 
 		response_buffer = respond(create_response(RESPONSE_200, html, response_headers));
 
-		if (response_buffer == CLOSE_CONNECTION) {
+		if (response_buffer == "") {
 			close_socket();
 		}
 
