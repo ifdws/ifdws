@@ -29,19 +29,18 @@ int main(int argc, char** argv) {
 			close_socket();
 			continue;
 		}
-		
-		html = "<head><title>ifdws!</title></head><body>";
-		html += "<h1>ifdws is online!</h1>";
-		html += "<p>Route: ";
-		html += request.route;
-		html += "</p>";
-		html += "</body>";
 
-		response_headers = create_headers();
+		if (request.route == "/") {
+			html = "<head>\n\t<title>ifdws!</title>\n\t<style>\n\t\t* {\n\t\t\tmargin: 0;\n\t\t}\n\t\t\n\t\tbody {\n\t\t\twidth: 100vw;\n\t\t\theight: 100vh;\n\t\t\tdisplay: flex;\n\t\t\tjustify-content: center;\n\t\t\talign-items: center;\n\t\t\tbackground-color: #222222;\n\t\t\tcolor: #ffffff;\n\t\t\tfont-family: 'Roboto', Arial, sans-serif;\n\t\t}\n\t\t\n\t\th1 {\n\t\t\tfont-size: 20vw;\n\t\t}\n\t</style>\n\t\n\t<script>\n\t\tlet i = 0;\n\t\t\n\t\tconst text = [\n\t\t\t\"ifdws!\",\n\t\t\t\"ifdws!!\",\n\t\t\t\"ifdws!!!\"\n\t\t];\n\t\t\n\t\tsetInterval(() => {\n\t\t\tdocument.getElementById(\"ifdws\").innerText = text[i];\n\t\t\ti = (i + 1) % text.length;\n\t\t}, 500);\n\t</script>\n</head>\n\n<body>\n\t<h1 id=\"ifdws\">ifdws!</h1>\n</body>";
 
-		response_headers["Content-type"] = get_mime_header(HTML_MIMETYPE, CHARSET_UTF8);
+			response_headers = create_headers();
 
-		response_buffer = respond(create_response(RESPONSE_200, html, response_headers));
+			response_headers["Content-type"] = get_mime_header(HTML_MIMETYPE, CHARSET_UTF8);
+
+			response_buffer = respond(create_response(RESPONSE_200, html, response_headers));
+		} else {
+			response_buffer = respond(create_response(RESPONSE_404, "404 not found", create_headers()));
+		}
 
 		if (response_buffer == "") {
 			close_socket();
